@@ -71,7 +71,7 @@ Text Sequence → Embedding(128) → LSTM(256) → Dense(vocab_size) → Word Pr
 2. Update script path
 
 `
-IMAGE_DIR = "flickr8k/Images"
+IMAGE_DIR = "flickr8k/Images"\n
 CAPTION_FILE = "flickr8k/captions.txt"
 `
 
