@@ -70,10 +70,10 @@ Text Sequence → Embedding(128) → LSTM(256) → Dense(vocab_size) → Word Pr
 1. Download flickr8k from https://www.kaggle.com/datasets/adityajn105/flickr8k?resource=download
 2. Update script path
 
-`
-IMAGE_DIR = "flickr8k/Images"\n
+```python
+IMAGE_DIR = "flickr8k/Images"
 CAPTION_FILE = "flickr8k/captions.txt"
-`
+```
 
 ### Execute
 `python image_captioning.py`
