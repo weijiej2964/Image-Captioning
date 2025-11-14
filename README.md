@@ -1,187 +1,84 @@
-Image Captioning with Deep Learning
-Project Overview
+# Image Captioning with Deep Learning
+
+## Project Overview
 This project implements an image captioning system using deep learning techniques. The model combines Computer Vision (CNN) and Natural Language Processing (LSTM) to generate descriptive captions for images automatically.
 
-Architecture
-The system uses an encoder-decoder architecture:
+## Architecture
+The system uses an **encoder-decoder architecture**:
 
-Encoder (Visual Feature Extraction)
-VGG16 pre-trained on ImageNet
+### Encoder (Visual Feature Extraction)
+- **VGG16** pre-trained on ImageNet
+- Removes the top classification layers
+- Uses Global Average Pooling to extract 512-dimensional feature vectors
+- Acts as the "eyes" of the system
 
-Removes the top classification layers
+### Decoder (Language Generation)
+- **LSTM (Long Short-Term Memory)** network
+- 256 LSTM units for sequence generation
+- Embedding layer with 128 dimensions
+- Takes image features as initial state
+- Generates captions word by word
 
-Uses Global Average Pooling to extract 512-dimensional feature vectors
+### Model Flow
+Image Input → VGG16 Feature Extraction → Dense(256) → LSTM Initial State
+↓
+Text Sequence → Embedding(128) → LSTM(256) → Dense(vocab_size) → Word Prediction
 
-Acts as the "eyes" of the system
+## How the Sequence Model Works
 
-Decoder (Language Generation)
-LSTM (Long Short-Term Memory) network
+### Training Phase
+1. **Image Features**: VGG16 extracts 512-dim feature vectors from input images
+2. **Text Processing**: Captions are tokenized, padded, and converted to sequences
+3. **Teacher Forcing**: During training, the model receives previous ground-truth words to predict next words
+4. **Loss Calculation**: Uses categorical crossentropy to minimize prediction error
 
-256 LSTM units for sequence generation
+### Inference Phase
+1. **Start Token**: Generation begins with "startseq" token
+2. **Iterative Prediction**: At each step:
+   - Current sequence is fed to LSTM
+   - Model predicts probability distribution over vocabulary
+   - Highest probability word is selected and appended to sequence
+3. **Stop Condition**: Generation stops when "endseq" token is predicted or maximum length reached
 
-Embedding layer with 128 dimensions
+### Key Sequence Concepts
+- **Hidden State**: LSTM maintains context through hidden states initialized with image features
+- **Word Embeddings**: Words are converted to dense vectors capturing semantic meaning
+- **Sequence Length**: Maximum caption length of 25 words (determined from dataset)
 
-Takes image features as initial state
+## Implementation Details
 
-Generates captions word by word
+### Data Pipeline
+```python
+# Image Processing
+- Resize to 224x224 pixels
+- VGG16 preprocessing (channel-wise centering)
+- Feature extraction with frozen VGG16 weights
 
-Model Structure
-text
-Input Image → VGG16 Feature Extraction → Dense Layer → LSTM Initial State
-                    ↓
-Text Sequence → Embedding Layer → LSTM → Dense Output → Next Word Prediction
-How It Works
-Image Processing: Input images are resized to 224x224 and fed through VGG16
+# Text Processing
+- Convert to lowercase, remove punctuation
+- Add special tokens: 'startseq' and 'endseq'
+- Tokenization and vocabulary building
+- Sequence padding to fixed length
+```
 
-Feature Extraction: VGG16 extracts visual features (512-dim vectors)
+## How to Run the code?
 
-Sequence Generation: LSTM uses image features as context to generate captions
+### Download Dependencies
+` pip install tensorflow matplotlib numpy pillow `
 
-Word Prediction: At each step, the model predicts the next word based on previous words and image context
+### Data setup
+1. Download flickr8k from https://www.kaggle.com/datasets/adityajn105/flickr8k?resource=download
+2. Update script path
 
-Beam Search: Generates captions by sequentially predicting words until end token
+`
+IMAGE_DIR = "flickr8k/Images"
+CAPTION_FILE = "flickr8k/captions.txt"
+`
 
-Installation & Setup
-Prerequisites
-bash
-pip install tensorflow matplotlib numpy pillow
-Dataset Setup
-Download Flickr8k dataset from Kaggle
+### Execute
+`python image_captioning.py`
 
-Update file paths in image_captioning.py:
 
-python
-IMAGE_DIR = "path/to/flickr8k/Images"
-CAPTION_FILE = "path/to/flickr8k/captions.txt"
-Running the Model
-bash
-python image_captioning.py
-Key Features
-Transfer Learning: Uses pre-trained VGG16 for visual understanding
 
-Sequence Modeling: LSTM handles variable-length caption generation
 
-Teacher Forcing: Training technique for better convergence
 
-Flexible Input: Works with any image size (automatically resized)
-
-Visualization: Displays images with generated vs actual captions
-
-Results & Performance
-Sample Outputs
-Input Image: Child climbing stairs
-
-Generated Caption: "a child in a pink dress is climbing up stairs"
-
-Actual Captions:
-
-"A child in a pink dress is climbing up a set of stairs"
-
-"A girl going into a wooden building"
-
-"A little girl climbing into a wooden playhouse"
-
-Model Metrics
-Vocabulary Size: 500-1000 words (depending on training data)
-
-Sequence Length: Up to 25 words
-
-Training Time: 15-60 minutes (depending on dataset size)
-
-Accuracy: Improves with more data and epochs
-
-Technical Details
-Data Preprocessing
-Image normalization using VGG16 preprocessing
-
-Text tokenization and sequence padding
-
-Vocabulary building from captions
-
-Train/validation split (90/10)
-
-Training Parameters
-Optimizer: Adam
-
-Loss Function: Categorical Crossentropy
-
-Batch Size: 16-32
-
-Epochs: 15-30 (recommended)
-
-Embedding Dimension: 128
-
-LSTM Units: 256
-
-Model Configuration
-python
-{
-    "embedding_dim": 128,
-    "lstm_units": 256,
-    "feature_size": 512,
-    "max_sequence_length": 25,
-    "vocab_size": 516  # varies with data
-}
-Team Contributions
-Team Member 1: Data loading and preprocessing pipeline
-
-Team Member 2: CNN feature extraction implementation
-
-Team Member 3: LSTM architecture and training loop
-
-Team Member 4: Caption generation and visualization
-
-Challenges & Solutions
-Challenges Faced
-Dimension Mismatch: LSTM initial state size didn't match hidden units
-
-Solution: Made dense layer output match LSTM units
-
-Caption Matching: Difficulty linking images with correct captions
-
-Solution: Implemented exact filename matching
-
-Training Time: Slow convergence with small datasets
-
-Solution: Increased dataset size and epochs
-
-Lessons Learned
-Pre-trained CNNs significantly boost performance
-
-LSTM initial state is crucial for conditioning on images
-
-More training data dramatically improves caption quality
-
-Proper data preprocessing is essential for good results
-
-Future Improvements
-Use larger datasets (Flickr30k, COCO)
-
-Implement attention mechanisms
-
-Try transformer-based architectures
-
-Add beam search for better caption generation
-
-Fine-tune CNN layers for better feature extraction
-
-Files Structure
-text
-project/
-├── image_captioning.py      # Main implementation
-├── requirements.txt         # Dependencies
-├── README.md               # This file
-└── flickr8k/               # Dataset
-    ├── Images/
-    └── captions.txt
-References
-Flickr8k Dataset
-
-TensorFlow Image Captioning Tutorial
-
-VGG16 Paper
-
-LSTM Paper
-
-License
-This project is for educational purposes as part of CSCI 35000 - Deep Learning course.
