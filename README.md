@@ -75,6 +75,8 @@ IMAGE_DIR = "flickr8k/Images"
 CAPTION_FILE = "flickr8k/captions.txt"
 ```
 
+### Change how test image
+
 ### Execute
 `python image_captioning.py`
 
